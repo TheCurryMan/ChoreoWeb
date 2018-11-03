@@ -30,12 +30,16 @@
 
     <div id="student" class="video-container">
         <h1>Student</h1>
-        <video id="student-video" class="video-js" controls data-setup='{"fluid": true}'>
-            <p class="vjs-no-js">
-                To view this video please enable JavaScript, and consider upgrading to a web browser that
-                <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
-            </p>
-        </video>
+        <div>
+            <canvas id="myCanvas" style="border:1px solid #000000;position:absolute; background-color: red"></canvas>
+            <video id="student-video" class="video-js" controls data-setup='{"fluid": true}'>
+
+                <p class="vjs-no-js">
+                    To view this video please enable JavaScript, and consider upgrading to a web browser that
+                    <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+                </p>
+            </video>
+        </div>
     </div>
 </div>
 
