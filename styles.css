@@ -1,0 +1,18 @@
+#videos-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.video-container {
+    padding: 10px;
+    text-align: center;
+}
+
+
+#teacher {
+    flex:1;
+}
+
+#student {
+    flex:1;
+}
