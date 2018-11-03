@@ -20,7 +20,7 @@
 <div id="videos-container">
     <div id="teacher" class="video-container">
         <h1>Teacher</h1>
-        <video id="teacher-video" class="video-js vjs-waiting" controls data-setup='{"fluid": true}'>
+        <video id="teacher-video" class="video-js" controls data-setup='{"fluid": true}'>
             <p class="vjs-no-js">
                 To view this video please enable JavaScript, and consider upgrading to a web browser that
                 <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
@@ -30,8 +30,7 @@
 
     <div id="student" class="video-container">
         <h1>Student</h1>
-        <video id="student-video" class="video-js" controls preload="auto" data-setup='{"fluid": true}'>
-            <source src="Student.mp4" type="video/mp4">
+        <video id="student-video" class="video-js" controls data-setup='{"fluid": true}'>
             <p class="vjs-no-js">
                 To view this video please enable JavaScript, and consider upgrading to a web browser that
                 <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
@@ -74,18 +73,32 @@
         messagingSenderId: "801043437723"
     };
     firebase.initializeApp(config);
+    // videojs('teacher-video', {
+    //     children: {
+    //         controlBar: {
+    //             progressControl: {
+    //                 seekBar: false
+    //             }
+    //         }
+    //     }
+    // });
 
-    var teacher = videojs('teacher-video');
-    teacher.loadingSpinner.show();
     var storage = firebase.storage();
     var storageRef = storage.ref();
-    var vid = storageRef.child('Student.mp4');
-    vid.getDownloadURL().then(function(url) {
-        teacher.src([{type: 'video/mp4', src: url}]);
-        teacher.loadingSpinner.hide();
-    }).catch(function(error) {
+    function renderVid(vidId, vidName) {
+        var vid = videojs(vidId);
+        vid.loadingSpinner.show();
+        var video = storageRef.child(vidName);
+        video.getDownloadURL().then(function(url) {
+            vid.src([{type: 'video/mp4', src: url}]);
+            vid.loadingSpinner.hide();
+        }).catch(function(error) {
 
-    });
+        });
+    }
+    renderVid('teacher-video', 'Choreo.mp4');
+    renderVid('student-video', 'Student.mp4');
+
 </script>
 
 <script>
