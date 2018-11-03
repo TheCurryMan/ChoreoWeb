@@ -16,3 +16,29 @@
 #student {
     flex:1;
 }
+
+#scrollBar {
+    display: flex;
+    height: 50px;
+    background-color: green;
+}
+
+
+.ticker {
+    background-color: blue;
+    width: 2%;
+    height: 100%;
+    border: black 1px solid
+}
+.time {
+    font-size: 24px;
+    font-family: Avenir;
+}
+
+button {
+    padding: 0;
+    border: none;
+    background: none;
+    height: 100%;
+    width: 100%;
+}
