@@ -48,6 +48,11 @@
     </div>
     <p class='time' style="float:left">0:00</p>
     <p class='time' style="float:right">0:05</p>
+
+    <div class="playpause">
+        <input type="checkbox" id="playpause" name="check" checked onclick="playpause(event)"/>
+        <label for="playpause" tabindex=1></label>
+    </div>
 </div>
 
 
@@ -73,31 +78,45 @@
         messagingSenderId: "801043437723"
     };
     firebase.initializeApp(config);
-    // videojs('teacher-video', {
-    //     children: {
-    //         controlBar: {
-    //             progressControl: {
-    //                 seekBar: false
-    //             }
-    //         }
-    //     }
-    // });
+
+    videojs('teacher-video').on('pause', function () {
+        $("#playpause").attr('checked', true)
+    });
+    videojs('teacher-video').on('ended', function () {
+        $("#playpause").attr('checked', true)
+    });
+    videojs('teacher-video').on('play', function () {
+        $("#playpause").attr('checked', null)
+    });
 
     var storage = firebase.storage();
     var storageRef = storage.ref();
+
     function renderVid(vidId, vidName) {
         var vid = videojs(vidId);
         vid.loadingSpinner.show();
         var video = storageRef.child(vidName);
-        video.getDownloadURL().then(function(url) {
+        video.getDownloadURL().then(function (url) {
             vid.src([{type: 'video/mp4', src: url}]);
             vid.loadingSpinner.hide();
-        }).catch(function(error) {
+        }).catch(function (error) {
 
         });
     }
+
     renderVid('teacher-video', 'Choreo.mp4');
     renderVid('student-video', 'Student.mp4');
+
+    function playpause(e) {
+        if (!e.srcElement.checked) {
+            videojs('teacher-video').play();
+            videojs('student-video').play()
+        } else {
+            videojs('teacher-video').pause();
+            videojs('student-video').pause()
+        }
+
+    }
 
 </script>
 
