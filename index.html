@@ -58,7 +58,7 @@
             </button>
         </div>
     </div>
-    <p class='time' style="float:left">0:00</p>
+    <p class='time' id='time' style="float:left">0:00</p>
     <p class='time' id='endTime' style="float:right">0:05</p>
 
     <div class="redText" style="display:inline-block; float: left;">
@@ -299,19 +299,19 @@
                 let scores = snapshot.val()[studentSource.toLowerCase()];
                 let finalScores = [];
                 for (let i = 0; i < scores.length; i++) {
-                    finalScores.push(scores[i][0]);
+                    finalScores.push(Math.max(...scores[i]));
                     redErrors = [];
 
-                    if (scores[i][0] == 3) {
+                    if (scores[i][0] === 3) {
                         redErrors.push("Right Arm")
                     }
-                    if (scores[i][1] == 3) {
+                    if (scores[i][1] === 3) {
                         redErrors.push("Left Arm")
                     }
-                    if (scores[i][2] == 3) {
+                    if (scores[i][2] === 3) {
                         redErrors.push("Right Leg")
                     }
-                    if (scores[i][3] == 3) {
+                    if (scores[i][3] === 3) {
                         redErrors.push("Left Leg")
                     }
 
@@ -353,12 +353,7 @@
             a.appendTo('#scrollBar');
             a.css("backgroundColor", colors[i]);
             a.css("width", (100 / colors.length).toString() + "%");
-            if (colors[i] === 'red') {
-                a.attr('data-toggle', 'tooltip');
-                a.attr('data-placement', 'bottom');
-                a.prop('title', 'hi lol');
-                a.tooltip();
-            }
+
 
             if (Object.keys(redData).includes(i.toString())) {
                 let data = redData[i];

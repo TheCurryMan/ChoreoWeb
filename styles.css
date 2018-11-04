@@ -110,6 +110,7 @@ h1 {
 .time {
     font-size: 24px;
     font-family: Avenir, serif;
+    margin-top: 15px;
 }
 
 button {
