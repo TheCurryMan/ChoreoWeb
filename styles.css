@@ -62,6 +62,7 @@ h1 {
     margin-top: 10px;
     display: flex;
     height: 30px;
+    position:relative;
 }
 
 
@@ -71,7 +72,14 @@ h1 {
     width: 3%;
     height: 100%;
     border: white 1px solid;
+    -webkit-transition: all 0.3s; /* Safari */
+    transition: all 0.3s;
 }
+
+.ticker:hover {
+    transform: scale(1.2);
+}
+
 .time {
     font-size: 24px;
     font-family: Avenir, serif;
@@ -85,11 +93,16 @@ button {
     width: 100%;
 }
 
+button:focus {
+    outline:none;
+}
+
 .playpause {
     align-items: center;
     display:flex;
     flex-direction: column;
     padding-top: 50px;
+    margin-bottom: 50px;
 }
 
 .playpause label {
