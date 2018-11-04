@@ -224,8 +224,8 @@
     }
 
     function analyze() {
-        var x = XMLHttpRequest();
-        x.open("POST", "http://127.0.0.1:5000/api?input=" + teacherSource + "&model=" + studentSource);
+        var x = new XMLHttpRequest();
+        x.open("POST", "http://127.0.0.1:5000/api?teacher=" + teacherSource + "&student=" + studentSource);
         x.send();
     }
 
