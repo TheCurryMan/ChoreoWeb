@@ -16,7 +16,7 @@
 </head>
 
 <body>
-<h2 id="header">ChoreoCompare</h2>
+<h2 id="header">ChoreoCoach</h2>
 <div id="videos-container">
     <div id="teacher" class="video-container">
         <h2>Teacher</h2>
@@ -58,8 +58,8 @@
             </button>
         </div>
     </div>
-    <p id='time' style="float:left; padding-top: 10px">0:00</p>
-    <p id='end-time' style="float:right; padding-top: 10px"></p>
+    <p class='time' style="float:left">0:00</p>
+    <p class='time' id='endTime' style="float:right">0:05</p>
 
     <div class="playpause">
         <input type="checkbox" id="playpause" name="check" checked onclick="playpause(event)"/>
@@ -250,7 +250,7 @@
             vid.src([{type: 'video/mp4', src: url}]);
             vid.loadingSpinner.hide();
             if (cb) {
-                cb()
+                cb();
             }
         }).catch(function (error) {
 
@@ -259,6 +259,8 @@
 
     renderVid('teacher-video', teacherSource + '.mp4');
     renderVid('student-video', studentSource + '.mp4');
+
+    student
 
     function playpause(e) {
         if (!e.srcElement.checked) {
