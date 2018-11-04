@@ -16,7 +16,7 @@
 </head>
 
 <body>
-<h2 id="header">ChoreoCompare</h2>
+<h2 id="header">ChoreoCoach</h2>
 <div id="videos-container">
     <div id="teacher" class="video-container">
         <h2>Teacher</h2>
@@ -35,7 +35,7 @@
 
             <canvas id="overlay" style="position:absolute;z-index: 1000;width:100%;height:100%;left:0;top:0"></canvas>
 
-            <video id="student-video" class="video-js" controls data-setup='{"fluid": true}' muted prefix="auto">
+            <video id="student-video" class="video-js" controls data-setup='{"fluid": true}' muted preload="auto">
                 <source src="" type="video/mp4">
 
                 <p class="vjs-no-js">
@@ -58,10 +58,14 @@
             </button>
         </div>
     </div>
-    <p id='time' style="float:left; padding-top: 10px">0:00</p>
-    <p id='end-time' style="float:right; padding-top: 10px"></p>
+    <p class='time' style="float:left">0:00</p>
+    <p class='time' id='endTime' style="float:right">0:05</p>
 
-    <div class="playpause">
+    <div class="redText" style="display:inline-block; float: left;">
+        <p id="feedback"> </p>
+    </div>
+
+    <div class="playpause" >
         <input type="checkbox" id="playpause" name="check" checked onclick="playpause(event)"/>
         <label for="playpause" tabindex=1></label>
     </div>
@@ -268,7 +272,7 @@
             vid.src([{type: 'video/mp4', src: url}]);
             vid.loadingSpinner.hide();
             if (cb) {
-                cb()
+                cb();
             }
         }).catch(function (error) {
 
@@ -277,6 +281,8 @@
 
     renderVid('teacher-video', teacherSource + '.mp4');
     renderVid('student-video', studentSource + '.mp4');
+
+    var redData = {};
 
     function playpause(e) {
         if (!e.srcElement.checked) {
@@ -306,15 +312,37 @@
             console.log(studentSource.toLowerCase());
             if (Object.keys(snapshot.val()).includes(studentSource.toLowerCase())) {
                 console.log('HELLOOOOO');
-                var scores = snapshot.val()[studentSource.toLowerCase()].split(" ");
+                var scores = snapshot.val()[studentSource.toLowerCase()];
+                var finalScores = [];
+                for (var i = 0; i < scores.length; i++) {
+                    finalScores.push(scores[i][0]);
+                    redErrors = [];
+
+                    if (scores[i][0] == 3) {
+                        redErrors.push("Right Arm")
+                    }
+                    if (scores[i][1] == 3) {
+                        redErrors.push("Left Arm")
+                    }
+                    if (scores[i][2] == 3) {
+                        redErrors.push("Right Leg")
+                    }
+                    if (scores[i][3] == 3) {
+                        redErrors.push("Left Leg")
+                    }
+
+                    if (redErrors.length > 0) {
+                        console.log(scores);
+                        redData[i] = redErrors
+                    }
+                }
                 var conversion = {"1": "green", "2": "gold", "3": "red"};
 
-                scores = scores.map(function (v) {
-                    console.log(conversion[v.toString()]);
+                finalScores = finalScores.map(function (v) {
                     return conversion[v.toString()];
                 });
-                console.log(scores);
-                updateTimestamp(scores);
+                console.log(finalScores);
+                updateTimestamp(finalScores);
             } else {
                 analyze();
             }
@@ -334,9 +362,24 @@
                 a.prop('title', 'hi lol');
                 a.tooltip();
             }
+
+            if (Object.keys(redData).includes(i.toString())) {
+                let data = redData[i];
+                var totalStr = "Please take a look at your: ";
+                for (var j = 0; j < data.length; j++) {
+                    if (j+1 === data.length) {
+                        totalStr += data[j]
+                    } else {
+                        totalStr += data[j] + ", ";
+                    }
+                }
+                a.attr('data-toggle', 'tooltip');
+                a.attr('data-placement', 'bottom');
+                a.prop('title', totalStr);
+                a.tooltip();
+            }
         }
         $("#tick").remove();
-
     }
 
 
@@ -355,6 +398,8 @@
         tPlayer.play();
 
     }
+
+
 
 </script>
 

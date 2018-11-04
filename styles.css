@@ -1,5 +1,5 @@
 body {
-    background-image: linear-gradient(to right, #00c6ff , #0072ff);
+    background-image: linear-gradient(to right, #00c6ff, #0072ff);
     color: whitesmoke;
     text-align: center;
 }
@@ -22,7 +22,7 @@ h1 {
     padding: 10px;
 }
 
-#videos-container  h2 {
+#videos-container h2 {
     background-color: white;
     color: #00c6ff;
     margin: 0px;
@@ -48,27 +48,30 @@ h1 {
     display: none !important;
 }
 
-.vjs-big-play-button
-{
+.vjs-big-play-button {
     display: none !important;
 }
 
+#feedback {
+    font-family: Avenir;
+    font-size: 24px;
+
+}
 
 #teacher {
-    flex:1;
+    flex: 1;
 }
 
 #student {
-    flex:1;
+    flex: 1;
 }
 
 #scrollBar {
     margin-top: 10px;
     display: flex;
     height: 30px;
-    position:relative;
+    position: relative;
 }
-
 
 .ticker {
     align-content: center;
@@ -98,12 +101,12 @@ button {
 }
 
 button:focus {
-    outline:none;
+    outline: none;
 }
 
 .playpause {
     align-items: center;
-    display:flex;
+    display: flex;
     flex-direction: column;
     padding-top: 50px;
     margin-bottom: 50px;
@@ -119,10 +122,12 @@ button:focus {
     border-style: double;
     border-width: 0 0 0 60px;
 }
+
 .playpause input[type=checkbox] {
     position: absolute;
     left: -9999px;
 }
+
 .playpause input[type=checkbox]:checked + label {
     border-style: solid;
     border-width: 37px 0 37px 60px;
