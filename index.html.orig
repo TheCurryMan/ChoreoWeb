@@ -82,6 +82,30 @@
     var A = Object.keys(data).map(function (key) {
         return [parseInt(key), ...data[key]]
     });
+    var lastTime;
+    var current = 0;
+    var fps = 33; //66 for demo
+
+    var paused = false;
+
+    function pausedAnimation() {
+        paused = true
+    }
+
+    function playAnimation() {
+        paused = false;
+        lastTime = new Date().getTime() - now + lastTime
+    }
+
+    function scrubAnimation(pos) { // pos is fraction through the video (i.e. 50\% through, etc.)
+        paused = false;
+        for (var i = A.length - 1; i >= 0; i--) {
+            if (A[i][0] <= pos * fps) {
+                current = i;
+                return;
+            }
+        }
+    }
 
     var canvas = $("#overlay");
     var h;
@@ -233,6 +257,18 @@
 
 
     function getTimestampColors() {
+<<<<<<< Updated upstream
+        return firebase.database().ref('/scores').once('value').then(function (snapshot) {
+            var scores = snapshot.val().split(" ");
+            var conversion = {"1": "green", "2": "gold", "3": "red"};
+
+            scores = scores.map(function (v) {
+                console.log(conversion[v.toString()]);
+                return conversion[v.toString()];
+            });
+            console.log(scores);
+            updateTimestamp(scores);
+=======
         var scoreRef = firebase.database().ref('/' + teacherSource.toLowerCase());
         scoreRef.on('value', function(snapshot) {
             console.log(snapshot.val());
@@ -252,6 +288,7 @@
             } else {
                 analyze();
             }
+>>>>>>> Stashed changes
         });
     }
 
