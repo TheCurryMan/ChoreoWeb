@@ -18,6 +18,11 @@
 <body>
 <h2 id="header">SyncUp</h2>
 <div id="videos-container">
+    <div id="volume-btn-container">
+        <button type="button" class="btn btn-dark" id="inc" onclick="speedup()"><h3>+</h3></button>
+        <h4 style="margin-top: 10px" id="speed-text">1x</h4>
+        <button type="button" class="btn btn-dark" id="dec" onclick="slowdown()"><h6>—</h6></button>
+    </div>
     <div id="teacher" class="video-container">
         <h2>Teacher</h2>
         <video id="teacher-video" class="video-js" controls data-setup='{"fluid": true}' muted preload="auto">
@@ -59,7 +64,7 @@
         </div>
     </div>
     <p class='time' id='time' style="float:left">0:00</p>
-    <p class='time' id='endTime' style="float:right">0:05</p>
+    <p class='time' id='end-time' style="float:right">0:05</p>
 
     <div class="redText" style="display:inline-block; float: left;">
         <p id="feedback"></p>
@@ -106,11 +111,12 @@
     firebase.initializeApp(config);
 </script>
 <script>
-
+    let speedOptions = [1.5,1.25,1,0.5,0.25,0.1];
+    let currentSpeed = 2;
     let A;
     let lastTime;
 
-    let fps = 30.25; //66 for demo
+    let fps = 30; //66 for demo
 
     let canvas = $("#overlay");
     let h;
@@ -137,7 +143,7 @@
     }
 
     function animate() {
-        let now = Math.min(teach.currentTime(), student.currentTime());
+        let now = student.currentTime();
         let frame = now * fps;
         let current;
         for (let i = A.length - 1; i >= 0; i--) {
@@ -388,6 +394,21 @@
 
     }
 
+    function speedup() {
+        currentSpeed = Math.max(0, currentSpeed - 1);
+        setSpeed()
+    }
+
+    function slowdown() {
+        currentSpeed = Math.min(speedOptions.length - 1, currentSpeed + 1);
+        setSpeed()
+    }
+
+    function setSpeed() {
+        $("#speed-text").text(speedOptions[currentSpeed] + "x");
+        teach.playbackRate(speedOptions[currentSpeed]);
+        student.playbackRate(speedOptions[currentSpeed]);
+    }
 
 </script>
 
