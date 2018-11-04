@@ -62,15 +62,24 @@
     <p class='time' id='endTime' style="float:right">0:05</p>
 
     <div class="redText" style="display:inline-block; float: left;">
-        <p id="feedback"> </p>
+        <p id="feedback"></p>
     </div>
 
-    <div class="playpause" >
+    <div class="playpause">
         <input type="checkbox" id="playpause" name="check" checked onclick="playpause(event)"/>
         <label for="playpause" tabindex=1></label>
     </div>
 </div>
 
+<div id="loading">
+    <div style="flex:1; padding: 200px;display:flex;flex-direction:column">
+        <div class="progress" style="flex:1; margin-bottom: 10px">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" id="loading-bar" role="progressbar"
+                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+        </div>
+        <h6>We'll be done shortly - thanks for your patience!</h6>
+    </div>
+</div>
 
 <script src="https://vjs.zencdn.net/7.2.4/video.js"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
@@ -213,11 +222,13 @@
     });
     var teach = videojs('teacher-video');
     var student = videojs('student-video');
-    function pause () {
+
+    function pause() {
         $("#playpause").prop('checked', true);
         pausedAnimation()
     }
-    function play () {
+
+    function play() {
         $("#playpause").prop('checked', null);
         playAnimation()
     }
@@ -251,8 +262,11 @@
     var p2 = new Promise(function (resolve) {
         teach.on('canplay', resolve);
     });
-    Promise.all([p1, p2]).then(function () {
-        var t = Math.round(Math.min(student.duration(), teach.duration()));
+    var vidlength = Promise.all([p1, p2]).then(function () {
+        return Math.min(student.duration(), teach.duration())
+    });
+    vidlength.then(function (t) {
+        t = Math.round(t);
         $("#end-time").text("0:" + (t < 10 ? '0' + t : t))
     });
     setInterval(function () {
@@ -295,10 +309,15 @@
 
     }
 
-    function analyze() {
+    function analyze(cb) {
         var x = new XMLHttpRequest();
         x.open("POST", "http://127.0.0.1:5000/api?teacher=" + teacherSource + "&student=" + studentSource);
         x.send();
+        x.onreadystatechange = function () {
+            if (x.readyState === 4) {
+                cb()
+            }
+        }
     }
 
     getTimestampColors();
@@ -344,9 +363,24 @@
                 console.log(finalScores);
                 updateTimestamp(finalScores);
             } else {
-                analyze();
+                $("#loading").addClass("inactive-loading");
+                var startTime = new Date().getTime();
+                var clearId = setInterval(function () {
+                    function f(x) {
+                        return 1 - Math.exp(-0.5 * x)
+                    }
+                    var percent = f(((new Date().getTime() - startTime) / 1000)) * 100;
+                    $('#loading-bar').attr('aria-valuenow', percent).css('width', percent + "%");
+                    console.log(percent);
+                }, 75);
+                analyze(function () {
+                    clearInterval(clearId);
+                    $('#loading-bar').attr('aria-valuenow', 100).css('width', 100 + "%");
+                    $("#loading").removeClass("inactive-loading");
+                });
             }
         });
+
     }
 
     function updateTimestamp(colors) {
@@ -367,7 +401,7 @@
                 let data = redData[i];
                 var totalStr = "Please take a look at your: ";
                 for (var j = 0; j < data.length; j++) {
-                    if (j+1 === data.length) {
+                    if (j + 1 === data.length) {
                         totalStr += data[j]
                     } else {
                         totalStr += data[j] + ", ";
@@ -398,7 +432,6 @@
         tPlayer.play();
 
     }
-
 
 
 </script>

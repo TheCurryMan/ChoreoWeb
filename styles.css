@@ -55,7 +55,27 @@ h1 {
 #feedback {
     font-family: Avenir;
     font-size: 24px;
+}
 
+#loading {
+    position:absolute;
+    top:0;
+    width: 0;
+    height:0;
+    visibility:hidden;
+    background-color: rgba(122,122,122,0.7);
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s;
+    z-index: 10000000000000;
+
+}
+
+.inactive-loading {
+    visibility:visible !important;
+    width:100vw !important;
+    height:100vh !important;
 }
 
 #teacher {
