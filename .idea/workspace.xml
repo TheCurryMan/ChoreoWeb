@@ -74,6 +74,12 @@
         <counts>
           <entry key="project.open.time.5" value="1" />
           <entry key="project.opened" value="1" />
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         </counts>
       </usages-collector>
@@ -85,9 +91,15 @@
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
             <state relative-caret-position="-9">
               <caret line="3250" column="35" selection-start-line="3250" selection-start-column="35" selection-end-line="3250" selection-end-column="35" />
 =======
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
             <state relative-caret-position="355">
               <caret line="86" column="6" lean-forward="true" selection-start-line="86" selection-start-column="6" selection-end-line="86" selection-end-column="6" />
               <folding>
@@ -113,10 +125,18 @@
   <component name="FindInProjectRecents">
     <findStrings>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
       <find>student1</find>
       <find>'</find>
       <find>console.log(id);</find>
       <find>console.log</find>
+=======
+      <find>analyz</find>
+>>>>>>> Stashed changes
+=======
+      <find>analyz</find>
+>>>>>>> Stashed changes
 =======
       <find>analyz</find>
 >>>>>>> Stashed changes
@@ -129,8 +149,14 @@
     <option name="CHANGED_PATHS">
       <list>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
         <option value="$PROJECT_DIR$/data.json" />
         <option value="$PROJECT_DIR$/styles.css" />
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
         <option value="$PROJECT_DIR$/index.html" />
@@ -210,11 +236,19 @@
 =======
       <workItem from="1541260922778" duration="2631000" />
       <workItem from="1541295608284" duration="239000" />
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
     <option name="totallyTimeSpent" value="18208000" />
   </component>
@@ -225,6 +259,17 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="877" extended-state="0" />
+=======
+=======
+>>>>>>> Stashed changes
+    <option name="totallyTimeSpent" value="9919000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="23" width="1440" height="877" extended-state="0" />
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
     <editor active="true" />
 >>>>>>> Stashed changes
     <layout>
@@ -290,9 +335,15 @@
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
         <state relative-caret-position="-9">
           <caret line="3250" column="35" selection-start-line="3250" selection-start-column="35" selection-end-line="3250" selection-end-column="35" />
 =======
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
         <state relative-caret-position="355">
           <caret line="86" column="6" lean-forward="true" selection-start-line="86" selection-start-column="6" selection-end-line="86" selection-end-column="6" />
           <folding>

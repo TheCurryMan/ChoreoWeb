@@ -3282,6 +3282,10 @@
     student.on('play', play);
     student.on('play', startDraw);
 
+
+
+
+
     var storage = firebase.storage();
     var storageRef = storage.ref();
 
