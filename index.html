@@ -322,14 +322,18 @@
     }
 
     function updateTimestamp(colors) {
-        console.log(colors.length);
-        console.log(colors);
         for (var i = 0; i < colors.length; i++) {
             var a = $("#tick").clone();
             a.attr('id', '' + i);
             a.appendTo('#scrollBar');
             a.css("backgroundColor", colors[i]);
             a.css("width", (100 / colors.length).toString() + "%");
+            if (colors[i] === 'red') {
+                a.attr('data-toggle', 'tooltip');
+                a.attr('data-placement', 'bottom');
+                a.prop('title', 'hi lol');
+                a.tooltip();
+            }
         }
         $("#tick").remove();
 
