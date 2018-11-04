@@ -20,7 +20,7 @@
 <div id="videos-container">
     <div id="teacher" class="video-container">
         <h2>Teacher</h2>
-        <video id="teacher-video" class="video-js" controls data-setup='{"fluid": true}' muted>
+        <video id="teacher-video" class="video-js" controls data-setup='{"fluid": true}' muted preload="auto">
             <source src="" type="video/mp4">
             <p class="vjs-no-js">
                 To view this video please enable JavaScript, and consider upgrading to a web browser that
@@ -35,7 +35,7 @@
 
             <canvas id="overlay" style="position:absolute;z-index: 1000;width:100%;height:100%;left:0;top:0"></canvas>
 
-            <video id="student-video" class="video-js" controls data-setup='{"fluid": true}' muted>
+            <video id="student-video" class="video-js" controls data-setup='{"fluid": true}' muted prefix="auto">
                 <source src="" type="video/mp4">
 
                 <p class="vjs-no-js">
@@ -97,7 +97,7 @@
     var A;
     var lastTime;
     var current = 0;
-    var fps = 33; //66 for demo
+    var fps = 30.25; //66 for demo
 
     var paused = false;
 
@@ -168,18 +168,21 @@
 
             ctx.clearRect(0, 0, w, h);
             draw(toDraw);
-            requestAnimationFrame(function () {
-                animate()
-            })
-        }
 
+        }
+        requestAnimationFrame(function () {
+            animate()
+        })
     }
 
-    function startDraw(d) {
+    function populateData(d) {
         data = d;
         A = Object.keys(data).map(function (key) {
             return [parseInt(key), ...data[key]]
         });
+    }
+
+    function startDraw() {
         h = $("#student-video").outerHeight();
         w = $("#student-video").outerWidth();
         canvas.attr("height", h);
@@ -206,37 +209,52 @@
     });
     var teach = videojs('teacher-video');
     var student = videojs('student-video');
-    var pause = function () {
-        $("#playpause").attr('checked', true);
+    function pause () {
+        $("#playpause").prop('checked', true);
         pausedAnimation()
-    };
-    var play = function () {
-        $("#playpause").attr('checked', null)
+    }
+    function play () {
+        $("#playpause").prop('checked', null);
         playAnimation()
-    };
+    }
+
+    function ended() {
+        scrubAnimation(0);
+        teach.currentTime(0);
+        teach.play();
+        student.currentTime(0);
+        student.play();
+    }
 
     teach.on('pause', pause);
-    teach.on('ended', pause);
+    teach.on('ended', ended);
     teach.on('playing', play);
     student.on('pause', pause);
-    student.on('ended', pause);
+    student.on('ended', ended);
     student.on('playing', play);
-    student.on('play', function() {
-        var database = firebase.database();
-        database.ref('/'+teacherSource).once("value").then(function (snap) {
-            startDraw(snap.val().poses);
-        });
+    var database = firebase.database();
+    database.ref('/' + teacherSource).once("value").then(function (snap) {
+        populateData(snap.val().poses)
+    });
+    student.on('play', function () {
+        startDraw();
+        play()
     });
 
-    student.on('canplay', function () {
-        setTimeout(function () {
-            var t = Math.round(Math.min(student.duration(), teach.duration()));
-            $("#end-time").text("0:" + (t < 10 ? '0' + t : t));
-        }, 500);
+    var p1 = new Promise(function (resolve) {
+        student.on('canplay', resolve);
     });
-    setInterval(function() {
+    var p2 = new Promise(function (resolve) {
+        teach.on('canplay', resolve);
+    });
+    Promise.all([p1, p2]).then(function () {
+        var t = Math.round(Math.min(student.duration(), teach.duration()));
+        $("#end-time").text("0:" + (t < 10 ? '0' + t : t))
+    });
+    setInterval(function () {
         var t = Math.round(student.currentTime());
-        $("#indicator").css('left',student.currentTime() / Math.min(student.duration(), teach.duration()) * 100 + "%");
+        var percent = student.currentTime() / Math.min(student.duration(), teach.duration()) * 100
+        $("#indicator").css('left', Math.min(100, percent) + "%");
         $("#time").text("0:" + (t < 10 ? '0' + t : t));
     }, 25);
     var storage = firebase.storage();
@@ -325,7 +343,7 @@
         var sPlayer = videojs("student-video");
         var tPlayer = videojs("teacher-video");
         var n = $(".ticker").length;
-        console.log(id,n);
+        console.log(id, n);
         tPlayer.currentTime(tPlayer.duration() * id / n);
         sPlayer.currentTime(sPlayer.duration() * id / n);
         scrubAnimation(id / 60);
