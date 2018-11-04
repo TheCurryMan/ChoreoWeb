@@ -61,6 +61,10 @@
         <input type="checkbox" id="playpause" name="check" checked onclick="playpause(event)"/>
         <label for="playpause" tabindex=1></label>
     </div>
+    <div class="analyze">
+        <input type="checkbox" id="analyze" name="analyze" checked onclick="analyze(event)"/>
+        <label for="playpause" tabindex=1></label>
+    </div>
 </div>
 
 
@@ -3240,6 +3244,10 @@
 
 
 <script>
+    let u = new URL(window.location.href);
+    var teacherSource = u.searchParams.get("teacher");
+    var studentSource = u.searchParams.get("student");
+
     var config = {
         apiKey: "AIzaSyBOxP1HtVP0uUcfrwRPJs8PcMDB-QS1akQ",
         authDomain: "choreocoach.firebaseapp.com",
@@ -3248,7 +3256,7 @@
         storageBucket: "choreocoach.appspot.com",
         messagingSenderId: "801043437723"
     };
-    firebase.initializeApp(config);
+        firebase.initializeApp(config);
 
     videojs('teacher-video', {
         errorDisplay: false
@@ -3273,6 +3281,8 @@
     student.on('play', play);
     student.on('play', startDraw);
 
+
+
     var storage = firebase.storage();
     var storageRef = storage.ref();
 
@@ -3291,9 +3301,9 @@
         });
     }
 
-    renderVid('teacher-video', 'Choreo.mp4');
-    renderVid('student-video', 'Student1.mov');
-    // student.on('canplay', startDraw);
+
+    renderVid('teacher-video', teacherSource+'.mp4');
+    renderVid('student-video', studentSource+'.mp4');
 
     function playpause(e) {
         if (!e.srcElement.checked) {
@@ -3306,16 +3316,45 @@
 
     }
 
-</script>
+    function analyze() {
+        var x = XMLHttpRequest();
+        x.open("POST", "http://127.0.0.1:5000/api?input="+teacherSource+"&model="+studentSource) ;
+        x.send();
+        getTimestampColors();
+    }
 
-<script>
-    $(document).ready(function () {
-        for (var i = 0; i < 60; i++) {
+    getTimestampColors()
+
+
+    function getTimestampColors() {
+        return firebase.database().ref('/scores').once('value').then(function(snapshot) {
+            var scores = snapshot.val().split(" ");
+            var conversion = {"1":"green", "2": "gold", "3": "red"};
+
+            scores = scores.map(function(v){
+                console.log(conversion[v.toString()]);
+               return conversion[v.toString()];
+            });
+            console.log(scores);
+            updateTimestamp(scores);
+        });
+
+    }
+
+    function updateTimestamp(colors) {
+        console.log(colors.length);
+        console.log(colors);
+        for (var i = 0; i < colors.length; i++) {
             var a = $("#tick").clone();
             a.attr('id', '' + i);
             a.appendTo('#scrollBar');
+            a.css("backgroundColor", colors[i]);
+            a.css("width", (100/colors.length).toString()+"%");
         }
-    });
+        $("#tick").remove();
+
+    }
+
 
     function timestampClick(event) {
         let id = parseInt($(event.target).parent()[0].id);

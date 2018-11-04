@@ -57,10 +57,11 @@ h1 {
 
 
 .ticker {
-    background-color: #4770ff;
-    width: 2%;
+    align-content: center;
+    background-color: green;
+    width: 3%;
     height: 100%;
-    border: white 1px solid
+    border: white 1px solid;
 }
 .time {
     font-size: 24px;
