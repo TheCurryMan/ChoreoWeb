@@ -20,7 +20,7 @@
 <div id="videos-container">
     <div id="teacher" class="video-container">
         <h2>Teacher</h2>
-        <video id="teacher-video" class="video-js" controls data-setup='{"fluid": true}'>
+        <video id="teacher-video" class="video-js" controls data-setup='{"fluid": true}' muted>
             <source src="" type="video/mp4">
             <p class="vjs-no-js">
                 To view this video please enable JavaScript, and consider upgrading to a web browser that
@@ -35,7 +35,7 @@
 
             <canvas id="overlay" style="position:absolute;z-index: 1000;width:100%;height:100%;left:0;top:0"></canvas>
 
-            <video id="student-video" class="video-js" controls data-setup='{"fluid": true}'>
+            <video id="student-video" class="video-js" controls data-setup='{"fluid": true}' muted>
                 <source src="" type="video/mp4">
 
                 <p class="vjs-no-js">
@@ -3183,10 +3183,32 @@
     var A = Object.keys(data).map(function(key) {
         return [parseInt(key), ...data[key]]
     });
+    var lastTime;
+    var current = 0;
+    var fps = 62;
+
+    var paused = false;
+    function pausedAnimation() {
+        paused = true
+    }
+    function playAnimation() {
+        paused = false;
+        lastTime = new Date().getTime() - now + lastTime
+    }
+    function scrubAnimation(pos) { // pos is fraction through the video (i.e. 50\% through, etc.)
+        paused = false;
+        for (var i=A.length-1;i>=0;i--) {
+            if (A[i][0] <= pos*fps) {
+                current = i;
+                return;
+            }
+        }
+    }
 
     var canvas = $("#overlay");
     var h;
     var w;
+    var now;
 
     var ctx = canvas[0].getContext("2d");
 
@@ -3200,32 +3222,32 @@
     }
 
     function animate() {
-        var fps = 68;
-        ctx.clearRect(0, 0, w, h);
-        var now = new Date().getTime();
-        var n = A[current + 1];
-        var c = A[current];
+        if (!paused) {
+            now = new Date().getTime();
+            var n = A[current + 1];
+            var c = A[current];
 
-        if ((now - lastTime) / 1000 > (n[0] - c[0]) / fps) {
-            current += 1;
-            lastTime = now;
-        }
-        n = A[current + 1];
-        c = A[current];
-        var delta = (now - lastTime)/1000*fps/ (n[0] - c[0]);
-        var toDraw = [];
+            if ((now - lastTime) / 1000 > (n[0] - c[0]) / fps) {
+                current += 1;
+                lastTime = now;
+            }
+            n = A[current + 1];
+            c = A[current];
+            var delta = (now - lastTime)/1000*fps/ (n[0] - c[0]);
+            var toDraw = [];
 
-        for (var i = 0; i < n.length; i++) {
-            toDraw.push([c[i][0] + delta * (n[i][0] - c[i][0]), c[i][1] + delta * (n[i][1] - c[i][1])])
+            for (var i = 0; i < n.length; i++) {
+                toDraw.push([c[i][0] + delta * (n[i][0] - c[i][0]), c[i][1] + delta * (n[i][1] - c[i][1])])
+            }
+
+            ctx.clearRect(0, 0, w, h);
+            draw(toDraw);
+            requestAnimationFrame(function () {
+                animate()
+            })
         }
-        draw(toDraw);
-        requestAnimationFrame(function () {
-            animate()
-        })
+
     }
-
-    var lastTime;
-    var current = 0;
 
     function startDraw() {
         h = $("#student-video").outerHeight();
@@ -3259,10 +3281,12 @@
     var teach = videojs('teacher-video');
     var student = videojs('student-video');
     var pause = function () {
-        $("#playpause").attr('checked', true)
+        $("#playpause").attr('checked', true);
+        pausedAnimation()
     };
     var play = function () {
         $("#playpause").attr('checked', null)
+        playAnimation()
     };
 
     teach.on('pause', pause);
@@ -3326,7 +3350,7 @@
 
         var tPlayer = videojs("teacher-video");
         tPlayer.currentTime(tPlayer.duration() * id / 60);
-
+        scrubAnimation(id/60);
         sPlayer.play();
         tPlayer.play();
 
