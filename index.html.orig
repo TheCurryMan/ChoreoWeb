@@ -82,6 +82,7 @@
 <script src="https://www.gstatic.com/firebasejs/5.5.7/firebase.js"></script>
 
 <script>
+<<<<<<< Updated upstream
     var data = {
         "0": [
             [
@@ -3245,6 +3246,8 @@
 
 <script>
 
+=======
+>>>>>>> Stashed changes
     let u = new URL(window.location.href);
     var teacherSource = u.searchParams.get("teacher");
     var studentSource = u.searchParams.get("student");
@@ -3281,8 +3284,6 @@
     student.on('ended', pause);
     student.on('play', play);
     student.on('play', startDraw);
-
-
 
 
 
