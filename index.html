@@ -11,13 +11,18 @@
 
     <link href="./styles.css" rel="stylesheet">
 
-    <title>ChoreoCompare</title>
+    <title>SyncUp</title>
     <link href="https://vjs.zencdn.net/7.2.4/video-js.css" rel="stylesheet">
 </head>
 
 <body>
-<h2 id="header">ChoreoCoach</h2>
+<h2 id="header">SyncUp</h2>
 <div id="videos-container">
+    <div id="volume-btn-container">
+        <button type="button" class="btn btn-dark" id="inc" onclick="speedup()"><h3>+</h3></button>
+        <h4 style="margin-top: 10px" id="speed-text">1x</h4>
+        <button type="button" class="btn btn-dark" id="dec" onclick="slowdown()"><h6>—</h6></button>
+    </div>
     <div id="teacher" class="video-container">
         <h2>Teacher</h2>
         <video id="teacher-video" class="video-js" controls data-setup='{"fluid": true}' muted preload="auto">
@@ -58,19 +63,28 @@
             </button>
         </div>
     </div>
-    <p class='time' style="float:left">0:00</p>
-    <p class='time' id='endTime' style="float:right">0:05</p>
+    <p class='time' id='time' style="float:left">0:00</p>
+    <p class='time' id='end-time' style="float:right">0:05</p>
 
     <div class="redText" style="display:inline-block; float: left;">
-        <p id="feedback"> </p>
+        <p id="feedback"></p>
     </div>
 
-    <div class="playpause" >
+    <div class="playpause">
         <input type="checkbox" id="playpause" name="check" checked onclick="playpause(event)"/>
         <label for="playpause" tabindex=1></label>
     </div>
 </div>
 
+<div id="loading">
+    <div style="flex:1; padding: 200px;display:flex;flex-direction:column">
+        <div class="progress" style="flex:1; margin-bottom: 10px">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" id="loading-bar" role="progressbar"
+                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+        </div>
+        <h6>We'll be done shortly - thanks for your patience!</h6>
+    </div>
+</div>
 
 <script src="https://vjs.zencdn.net/7.2.4/video.js"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
@@ -86,7 +100,7 @@
 <script src="https://www.gstatic.com/firebasejs/5.5.7/firebase.js"></script>
 
 <script>
-    var config = {
+    let config = {
         apiKey: "AIzaSyBOxP1HtVP0uUcfrwRPJs8PcMDB-QS1akQ",
         authDomain: "choreocoach.firebaseapp.com",
         databaseURL: "https://choreocoach.firebaseio.com",
@@ -97,52 +111,30 @@
     firebase.initializeApp(config);
 </script>
 <script>
+    let speedOptions = [1.5,1.25,1,0.5,0.25,0.1];
+    let currentSpeed = 2;
+    let A;
+    let lastTime;
 
-    var A;
-    var lastTime;
-    var current = 0;
-    var fps = 30.25; //66 for demo
+    let fps = 30; //66 for demo
 
-    var paused = false;
+    let canvas = $("#overlay");
+    let h;
+    let w;
+    let connections = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [2, 6], [6, 7], [7, 8], [2, 15], [15, 12], [15, 9], [9, 10], [10, 11], [12, 13], [13, 14]];
 
-    function pausedAnimation() {
-        paused = true
-    }
-
-    function playAnimation() {
-        paused = false;
-        lastTime = new Date().getTime() - now + lastTime
-    }
-
-    function scrubAnimation(pos) { // pos is fraction through the video (i.e. 50\% through, etc.)
-        paused = false;
-        for (var i = A.length - 1; i >= 0; i--) {
-            if (A[i][0] <= pos * fps) {
-                current = i;
-                return;
-            }
-        }
-    }
-
-    var canvas = $("#overlay");
-    var h;
-    var w;
-    var now;
-    var connections = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [2, 6], [6, 7], [7, 8], [2, 15], [15, 12], [15, 9], [9, 10], [10, 11], [12, 13], [13, 14]];
-
-    var ctx = canvas[0].getContext("2d");
+    let ctx = canvas[0].getContext("2d");
 
     function draw(a1) {
         ctx.beginPath();
         ctx.fillStyle = "red";
         ctx.strokeStyle = "#FF0000";
-        for (var i = 0; i < a1.length; i++) {
+        for (let i = 0; i < a1.length; i++) {
             ctx.fillRect(a1[i][0] * w - 5, a1[i][1] * h - 5, 10, 10);
         }
-        for (var j = 0; j < connections.length; j++) {
-            var index1 = connections[j][0];
-            var index2 = connections[j][1];
-
+        for (let j = 0; j < connections.length; j++) {
+            let index1 = connections[j][0];
+            let index2 = connections[j][1];
             ctx.moveTo(a1[index1][0] * w, a1[index1][1] * h);
             ctx.lineTo(a1[index2][0] * w, a1[index2][1] * h);
         }
@@ -151,38 +143,33 @@
     }
 
     function animate() {
-        if (!paused) {
-            now = new Date().getTime();
-            var n = A[current + 1];
-            var c = A[current];
-
-            if ((now - lastTime) / 1000 > (n[0] - c[0]) / fps) {
-                current += 1;
-                lastTime = now;
+        let now = student.currentTime();
+        let frame = now * fps;
+        let current;
+        for (let i = A.length - 1; i >= 0; i--) {
+            if (A[i][0] <= frame) {
+                current = i;
+                break;
             }
-            n = A[current + 1];
-            c = A[current];
-            var delta = (now - lastTime) / 1000 * fps / (n[0] - c[0]);
-            var toDraw = [];
-
-            for (var i = 0; i < n.length; i++) {
-                toDraw.push([c[i][0] + delta * (n[i][0] - c[i][0]), c[i][1] + delta * (n[i][1] - c[i][1])])
-            }
-
-
-            ctx.clearRect(0, 0, w, h);
-            draw(toDraw);
-
         }
+        let n = A[current + 1];
+        let c = A[current];
+
+        let delta = (frame - c[0]) / (n[0] - c[0]);
+        let toDraw = [];
+        for (let i = 0; i < n.length; i++) {
+            toDraw.push([c[i][0] + delta * (n[i][0] - c[i][0]), c[i][1] + delta * (n[i][1] - c[i][1])])
+        }
+        ctx.clearRect(0, 0, w, h);
+        draw(toDraw);
         requestAnimationFrame(function () {
             animate()
         })
     }
 
     function populateData(d) {
-        data = d;
-        A = Object.keys(data).map(function (key) {
-            return [parseInt(key), ...data[key]]
+        A = Object.keys(d).map(function (key) {
+            return [parseInt(key), ...d[key]]
         });
     }
 
@@ -199,10 +186,9 @@
 
 
 <script>
-
     let u = new URL(window.location.href);
-    var teacherSource = u.searchParams.get("teacher");
-    var studentSource = u.searchParams.get("student");
+    let teacherSource = u.searchParams.get("teacher");
+    let studentSource = u.searchParams.get("student");
 
 
     videojs('teacher-video', {
@@ -211,19 +197,18 @@
     videojs('student-video', {
         errorDisplay: false
     });
-    var teach = videojs('teacher-video');
-    var student = videojs('student-video');
-    function pause () {
+    let teach = videojs('teacher-video');
+    let student = videojs('student-video');
+
+    function pause() {
         $("#playpause").prop('checked', true);
-        pausedAnimation()
     }
-    function play () {
+
+    function play() {
         $("#playpause").prop('checked', null);
-        playAnimation()
     }
 
     function ended() {
-        scrubAnimation(0);
         teach.currentTime(0);
         teach.play();
         student.currentTime(0);
@@ -236,7 +221,7 @@
     student.on('pause', pause);
     student.on('ended', ended);
     student.on('playing', play);
-    var database = firebase.database();
+    let database = firebase.database();
     database.ref('/' + teacherSource).once("value").then(function (snap) {
         populateData(snap.val().poses)
     });
@@ -245,29 +230,32 @@
         play()
     });
 
-    var p1 = new Promise(function (resolve) {
+    let p1 = new Promise(function (resolve) {
         student.on('canplay', resolve);
     });
-    var p2 = new Promise(function (resolve) {
+    let p2 = new Promise(function (resolve) {
         teach.on('canplay', resolve);
     });
-    Promise.all([p1, p2]).then(function () {
-        var t = Math.round(Math.min(student.duration(), teach.duration()));
+    let vidlength = Promise.all([p1, p2]).then(function () {
+        return Math.min(student.duration(), teach.duration())
+    });
+    vidlength.then(function (t) {
+        t = Math.round(t);
         $("#end-time").text("0:" + (t < 10 ? '0' + t : t))
     });
     setInterval(function () {
-        var t = Math.round(student.currentTime());
-        var percent = student.currentTime() / Math.min(student.duration(), teach.duration()) * 100
+        let t = Math.round(student.currentTime());
+        let percent = student.currentTime() / Math.min(student.duration(), teach.duration()) * 100
         $("#indicator").css('left', Math.min(100, percent) + "%");
         $("#time").text("0:" + (t < 10 ? '0' + t : t));
     }, 25);
-    var storage = firebase.storage();
-    var storageRef = storage.ref();
+    let storage = firebase.storage();
+    let storageRef = storage.ref();
 
     function renderVid(vidId, vidName, cb) {
-        var vid = videojs(vidId);
+        let vid = videojs(vidId);
         vid.loadingSpinner.show();
-        var video = storageRef.child(vidName);
+        let video = storageRef.child(vidName);
         video.getDownloadURL().then(function (url) {
             vid.src([{type: 'video/mp4', src: url}]);
             vid.loadingSpinner.hide();
@@ -282,7 +270,7 @@
     renderVid('teacher-video', teacherSource + '.mp4');
     renderVid('student-video', studentSource + '.mp4');
 
-    var redData = {};
+    let redData = {};
 
     function playpause(e) {
         if (!e.srcElement.checked) {
@@ -295,79 +283,89 @@
 
     }
 
-    function analyze() {
-        var x = new XMLHttpRequest();
+    function analyze(cb) {
+        let x = new XMLHttpRequest();
         x.open("POST", "http://127.0.0.1:5000/api?teacher=" + teacherSource + "&student=" + studentSource);
         x.send();
+        x.onreadystatechange = function () {
+            if (x.readyState === 4) {
+                cb()
+            }
+        }
     }
 
     getTimestampColors();
 
 
     function getTimestampColors() {
-        var scoreRef = firebase.database().ref('/' + teacherSource.toLowerCase());
+        let scoreRef = firebase.database().ref('/' + teacherSource.toLowerCase());
         scoreRef.on('value', function (snapshot) {
-            console.log(snapshot.val());
-            console.log(Object.keys(snapshot.val()));
-            console.log(studentSource.toLowerCase());
+
             if (Object.keys(snapshot.val()).includes(studentSource.toLowerCase())) {
-                console.log('HELLOOOOO');
-                var scores = snapshot.val()[studentSource.toLowerCase()];
-                var finalScores = [];
-                for (var i = 0; i < scores.length; i++) {
-                    finalScores.push(scores[i][0]);
+                let scores = snapshot.val()[studentSource.toLowerCase()];
+                let finalScores = [];
+                for (let i = 0; i < scores.length; i++) {
+                    finalScores.push(Math.max(...scores[i]));
                     redErrors = [];
 
-                    if (scores[i][0] == 3) {
+                    if (scores[i][0] === 3) {
                         redErrors.push("Right Arm")
                     }
-                    if (scores[i][1] == 3) {
+                    if (scores[i][1] === 3) {
                         redErrors.push("Left Arm")
                     }
-                    if (scores[i][2] == 3) {
+                    if (scores[i][2] === 3) {
                         redErrors.push("Right Leg")
                     }
-                    if (scores[i][3] == 3) {
+                    if (scores[i][3] === 3) {
                         redErrors.push("Left Leg")
                     }
 
                     if (redErrors.length > 0) {
-                        console.log(scores);
                         redData[i] = redErrors
                     }
                 }
-                var conversion = {"1": "green", "2": "gold", "3": "red"};
+                let conversion = {"1": "green", "2": "gold", "3": "red"};
 
                 finalScores = finalScores.map(function (v) {
                     return conversion[v.toString()];
                 });
-                console.log(finalScores);
                 updateTimestamp(finalScores);
             } else {
-                analyze();
+                $("#loading").addClass("inactive-loading");
+                let startTime = new Date().getTime();
+                let clearId = setInterval(function () {
+                    function f(x) {
+                        return 1 - Math.exp(-0.5 * x)
+                    }
+
+                    let percent = f(((new Date().getTime() - startTime) / 1000)) * 100;
+                    $('#loading-bar').attr('aria-valuenow', percent).css('width', percent + "%");
+                }, 75);
+                analyze(function () {
+                    clearInterval(clearId);
+                    $('#loading-bar').attr('aria-valuenow', 100).css('width', 100 + "%");
+                    $("#loading").removeClass("inactive-loading");
+                });
             }
         });
+
     }
 
     function updateTimestamp(colors) {
-        for (var i = 0; i < colors.length; i++) {
-            var a = $("#tick").clone();
+        for (let i = 0; i < colors.length; i++) {
+            let a = $("#tick").clone();
             a.attr('id', '' + i);
             a.appendTo('#scrollBar');
             a.css("backgroundColor", colors[i]);
             a.css("width", (100 / colors.length).toString() + "%");
-            if (colors[i] === 'red') {
-                a.attr('data-toggle', 'tooltip');
-                a.attr('data-placement', 'bottom');
-                a.prop('title', 'hi lol');
-                a.tooltip();
-            }
+
 
             if (Object.keys(redData).includes(i.toString())) {
                 let data = redData[i];
-                var totalStr = "Please take a look at your: ";
-                for (var j = 0; j < data.length; j++) {
-                    if (j+1 === data.length) {
+                let totalStr = "Please take a look at your: ";
+                for (let j = 0; j < data.length; j++) {
+                    if (j + 1 === data.length) {
                         totalStr += data[j]
                     } else {
                         totalStr += data[j] + ", ";
@@ -385,12 +383,9 @@
 
     function timestampClick(event) {
         let id = parseInt($(event.target).parent()[0].id);
-        //console.log($(event.target).parent());
-        console.log(id);
-        var sPlayer = videojs("student-video");
-        var tPlayer = videojs("teacher-video");
-        var n = $(".ticker").length;
-        console.log(id, n);
+        let sPlayer = videojs("student-video");
+        let tPlayer = videojs("teacher-video");
+        let n = $(".ticker").length;
         tPlayer.currentTime(tPlayer.duration() * id / n);
         sPlayer.currentTime(sPlayer.duration() * id / n);
         scrubAnimation(id / 60);
@@ -399,7 +394,21 @@
 
     }
 
+    function speedup() {
+        currentSpeed = Math.max(0, currentSpeed - 1);
+        setSpeed()
+    }
 
+    function slowdown() {
+        currentSpeed = Math.min(speedOptions.length - 1, currentSpeed + 1);
+        setSpeed()
+    }
+
+    function setSpeed() {
+        $("#speed-text").text(speedOptions[currentSpeed] + "x");
+        teach.playbackRate(speedOptions[currentSpeed]);
+        student.playbackRate(speedOptions[currentSpeed]);
+    }
 
 </script>
 
